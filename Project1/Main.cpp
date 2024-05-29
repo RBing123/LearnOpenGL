@@ -13,16 +13,20 @@ const unsigned int SCR_WIDTH = 800;
 const unsigned int SCR_HEIGHT = 600;
 
 const char* vertexShaderSource = "#version 330 core\n"
-"layout (location = 0) in vec3 aPos;\n"
+"layout (location = 0) in vec3 position;\n"
+"layout (location = 1) in vec3 color;\n"
+"out vec3 ourColor;\n"
 "void main()\n"
 "{\n"
-"   gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
+"gl_Position = vec4(position, 1.0);\n"
+"ourColor = color;\n"
 "}\0";
 const char* fragmentShaderSource = "#version 330 core\n"
-"out vec4 FragColor;\n"
+"out vec4 color;\n"
+"uniform vec4 ourColor;\n"
 "void main()\n"
 "{\n"
-"   FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n"
+"color = ourColor;\n"
 "}\n\0";
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode);
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode)
@@ -109,12 +113,20 @@ int main()
     -0.5f, -0.5f, 0.0f,
     -0.4f, 0.7f, 0.0f,
     0.0f, 0.5f ,0.0f,
+    -0.1, 0.2, 0.0f,
+    0.3, 0.2, 0.0f,
+    -0.8, 0.9, 0.0f,
+    -0.1, -0.2, 0.0f,
+    0.9, 0.7, 0.0f,
+    0.1, -0.5, 0.0f,
     };
   
     GLuint indices[] = {
         0, 1, 2,
         0, 3, 4,
-        2, 3, 4
+        2, 3, 4,
+        6, 9, 10,
+        4, 7, 8,
     };
     GLuint VBO, VAO, EBO;
     glGenVertexArrays(1, &VAO);
@@ -159,8 +171,12 @@ int main()
 
         // draw our first triangle
         glUseProgram(shaderProgram);
+        GLfloat timevalue = glfwGetTime();
+        GLfloat greenvalue = (sin(timevalue) / 2) + 0.5;
+        GLint vertexColorLocation = glGetUniformLocation(shaderProgram, "ourColor");
+        glUniform4f(vertexColorLocation, 0.0f, greenvalue, 0.0f, 1.0f);
         glBindVertexArray(VAO); // seeing as we only have a single VAO there's no need to bind it every time, but we'll do so to keep things a bit more organized
-        glDrawElements(GL_TRIANGLES, 9, GL_UNSIGNED_INT, 0);
+        glDrawElements(GL_TRIANGLES, 15, GL_UNSIGNED_INT, 0);
         // glBindVertexArray(0); // no need to unbind it every time 
 
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
